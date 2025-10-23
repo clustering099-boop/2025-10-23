@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClassGuard - 교실 인터넷 관리 시스템</title>
+  <meta name="description" content="교실 인터넷 관리 시스템으로 선생님이 학생들의 인터넷 사용을 효과적으로 관리할 수 있습니다.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: hsl(220, 85%, 55%);
+      --primary-hover: hsl(220, 85%, 45%);
+      --success: hsl(142, 71%, 45%);
+      --success-bg: hsl(142, 71%, 95%);
+      --error: hsl(0, 72%, 51%);
+      --error-bg: hsl(0, 72%, 95%);
+      --background: hsl(0, 0%, 98%);
+      --surface: hsl(0, 0%, 100%);
+      --border: hsl(220, 13%, 91%);
+      --text-primary: hsl(220, 9%, 15%);
+      --text-secondary: hsl(220, 9%, 46%);
+      --shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode {
+      --primary: hsl(220, 85%, 60%);
+      --primary-hover: hsl(220, 85%, 70%);
+      --success: hsl(142, 71%, 55%);
+      --success-bg: hsl(142, 71%, 15%);
+      --error: hsl(0, 72%, 61%);
+      --error-bg: hsl(0, 72%, 15%);
+      --background: hsl(220, 13%, 10%);
+      --surface: hsl(220, 13%, 15%);
+      --border: hsl(220, 13%, 25%);
+      --text-primary: hsl(0, 0%, 95%);
+      --text-secondary: hsl(220, 9%, 65%);
+      --shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--background);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .container {
+      max-width: 768px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      border: 2px solid transparent;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      background: transparent;
+      font-family: inherit;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background-color: var(--primary-hover);
+      border-color: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-outline {
+      border-color: var(--border);
+      color: var(--text-primary);
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      background-color: var(--surface);
+      transform: translateY(-1px);
+    }
+
+    .btn-success {
+      background-color: var(--success);
+      color: white;
+      border-color: var(--success);
+    }
+
+    .btn-success:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-icon {
+      padding: 0.5rem;
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    .card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 2px solid var(--border);
+      border-radius: 0.5rem;
+      background-color: var(--surface);
+      color: var(--text-primary);
+      font-family: inherit;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .start-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mode-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .mode-buttons .btn {
+      width: 100%;
+      min-height: 3.5rem;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1000;
+    }
+
+    .dashboard-header {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .dashboard-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.375rem 0.75rem;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-family: monospace;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .input-group input {
+      flex: 1;
+    }
+
+    .site-list,
+    .student-list {
+      list-style: none;
+    }
+
+    .site-item,
+    .student-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .site-item:last-child,
+    .student-item:last-child {
+      border-bottom: none;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .status-active {
+      background-color: var(--success-bg);
+      color: var(--success);
+    }
+
+    .status-inactive {
+      background-color: var(--surface);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .result {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      margin-top: 1rem;
+      animation: fadeIn 0.3s;
+    }
+
+    .result-allowed {
+      background-color: var(--success-bg);
+      color: var(--success);
+    }
+
+    .result-blocked {
+      background-color: var(--error-bg);
+      color: var(--error);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .student-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .student-info-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .student-info-value {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <button class="btn btn-icon theme-toggle" id="theme-toggle" aria-label="테마 전환">
+    <svg class="icon" id="theme-icon-light">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg class="icon hidden" id="theme-icon-dark">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <div class="container">
+    <div id="start-screen" class="start-screen">
+      <div style="width: 100%; max-width: 28rem;">
+        <h1>ClassGuard</h1>
+        <p class="subtitle">교실 인터넷 관리 시스템 (시연용)</p>
+
+        <div class="mode-buttons">
+          <button class="btn btn-primary" id="teacher-btn">
+            <svg class="icon" style="margin-right: 0.5rem;">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+            </svg>
+            선생님 모드
+          </button>
+
+          <button class="btn btn-outline" id="student-btn">
+            <svg class="icon" style="margin-right: 0.5rem;">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            학생 모드
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="teacher-screen" class="hidden">
+      <div class="header">
+        <button class="btn btn-small btn-outline" id="teacher-back">
+          <svg class="icon" style="margin-right: 0.25rem;">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          뒤로가기
+        </button>
+      </div>
+
+      <h2>관리자 대시보드</h2>
+
+      <div class="dashboard-header">
+        <button class="btn" id="toggle-btn" style="transition: all 0.3s;">제한 모드: 꺼짐</button>
+        <div class="dashboard-info">
+          <span style="font-size: 0.875rem; color: var(--text-secondary);">초대 코드:</span>
+          <span class="badge" id="invite-code"></span>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>허용 사이트</h3>
+          <div class="input-group">
+            <input type="text" id="new-site" placeholder="example.com">
+            <button class="btn btn-primary btn-small" id="add-site">
+              <svg class="icon">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+          <ul class="site-list" id="site-list"></ul>
+        </div>
+
+        <div class="card">
+          <h3>학생 목록</h3>
+          <ul class="student-list" id="student-list"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="student-screen" class="hidden">
+      <div class="header">
+        <button class="btn btn-small btn-outline" id="student-back">
+          <svg class="icon" style="margin-right: 0.25rem;">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          뒤로가기
+        </button>
+      </div>
+
+      <h2>학생 모드</h2>
+
+      <div id="join-form">
+        <div class="card">
+          <h3>교실 참여</h3>
+          <div style="margin-bottom: 0.5rem;">
+            <input type="text" id="student-name" placeholder="이름 입력" style="margin-bottom: 0.5rem;">
+            <input type="text" id="invite-code-input" placeholder="초대 코드 입력">
+          </div>
+          <button class="btn btn-primary" id="join-btn" style="width: 100%; margin-top: 1rem;">참여</button>
+        </div>
+      </div>
+
+      <div id="simulator" class="hidden">
+        <div class="student-info">
+          <span class="student-info-label">참여 중:</span>
+          <span class="student-info-value" id="current-student"></span>
+          <span class="status-badge" id="restriction-status"></span>
+        </div>
+
+        <div class="card">
+          <h3>사이트 접속 시뮬레이터</h3>
+          <div class="input-group">
+            <input type="text" id="url-input" placeholder="사이트 주소 입력 (예: example.com)">
+            <button class="btn btn-primary" id="visit-btn">접속</button>
+          </div>
+          <div id="result"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      inviteCode: generateInviteCode(),
+      restrictionEnabled: false,
+      allowedSites: ['edu.example.com', 'khanacademy.org'],
+      students: [],
+      currentStudent: null,
+      darkMode: false
+    };
+
+    function generateInviteCode() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return code;
+    }
+
+    function normalizeUrl(url) {
+      try {
+        const urlWithProtocol = url.startsWith('http://') || url.startsWith('https://')
+          ? url
+          : `https://${url}`;
+        const parsedUrl = new URL(urlWithProtocol);
+        return parsedUrl.hostname.toLowerCase();
+      } catch {
+        return null;
+      }
+    }
+
+    function checkUrl(url) {
+      if (!state.restrictionEnabled) {
+        return { allowed: true, message: '접속 허용 (제한 모드 비활성)' };
+      }
+
+      const hostname = normalizeUrl(url);
+      
+      if (!hostname) {
+        return { allowed: false, message: '접속 차단 (잘못된 URL)' };
+      }
+
+      const isAllowed = state.allowedSites.some(site => {
+        const normalizedSite = site.toLowerCase();
+        return hostname === normalizedSite || hostname.endsWith(`.${normalizedSite}`);
+      });
+
+      return {
+        allowed: isAllowed,
+        message: isAllowed ? '접속 허용' : '접속 차단'
+      };
+    }
+
+    function showScreen(screenId) {
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('teacher-screen').classList.add('hidden');
+      document.getElementById('student-screen').classList.add('hidden');
+      document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    function updateTeacherUI() {
+      document.getElementById('invite-code').textContent = state.inviteCode;
+      
+      const toggleBtn = document.getElementById('toggle-btn');
+      toggleBtn.textContent = `제한 모드: ${state.restrictionEnabled ? '켜짐' : '꺼짐'}`;
+      if (state.restrictionEnabled) {
+        toggleBtn.className = 'btn btn-success';
+      } else {
+        toggleBtn.className = 'btn';
+        toggleBtn.style.backgroundColor = 'var(--surface)';
+        toggleBtn.style.borderColor = 'var(--border)';
+        toggleBtn.style.color = 'var(--text-secondary)';
+      }
+
+      const siteList = document.getElementById('site-list');
+      if (state.allowedSites.length === 0) {
+        siteList.innerHTML = '<li class="empty-state">허용된 사이트가 없습니다</li>';
+      } else {
+        siteList.innerHTML = state.allowedSites.map(site => `
+          <li class="site-item">
+            <span>${site}</span>
+            <button class="btn btn-small btn-outline" onclick="removeSite('${site}')">
+              <svg class="icon">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </li>
+        `).join('');
+      }
+
+      const studentList = document.getElementById('student-list');
+      if (state.students.length === 0) {
+        studentList.innerHTML = '<li class="empty-state">참여한 학생이 없습니다</li>';
+      } else {
+        studentList.innerHTML = state.students.map(student => `
+          <li class="student-item">
+            <span>${student}</span>
+          </li>
+        `).join('');
+      }
+    }
+
+    function addSite() {
+      const input = document.getElementById('new-site');
+      const site = input.value.trim();
+      
+      if (site && !state.allowedSites.includes(site)) {
+        const normalized = normalizeUrl(site) || site.toLowerCase().replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '');
+        state.allowedSites.push(normalized);
+        input.value = '';
+        updateTeacherUI();
+      }
+    }
+
+    function removeSite(site) {
+      state.allowedSites = state.allowedSites.filter(s => s !== site);
+      updateTeacherUI();
+    }
+
+    function toggleRestriction() {
+      state.restrictionEnabled = !state.restrictionEnabled;
+      updateTeacherUI();
+    }
+
+    function joinSession() {
+      const name = document.getElementById('student-name').value.trim();
+      const code = document.getElementById('invite-code-input').value.trim();
+
+      if (!name || !code) {
+        alert('이름과 초대 코드를 모두 입력해주세요.');
+        return;
+      }
+
+      if (code !== state.inviteCode) {
+        alert('초대 코드가 올바르지 않습니다.');
+        return;
+      }
+
+      if (!state.students.includes(name)) {
+        state.students.push(name);
+      }
+      state.currentStudent = name;
+
+      document.getElementById('join-form').classList.add('hidden');
+      document.getElementById('simulator').classList.remove('hidden');
+      document.getElementById('current-student').textContent = name;
+      
+      updateRestrictionStatus();
+    }
+
+    function updateRestrictionStatus() {
+      const statusBadge = document.getElementById('restriction-status');
+      if (state.restrictionEnabled) {
+        statusBadge.className = 'status-badge status-active';
+        statusBadge.textContent = '제한 모드 활성';
+      } else {
+        statusBadge.className = 'status-badge status-inactive';
+        statusBadge.textContent = '제한 모드 비활성';
+      }
+    }
+
+    function visitSite() {
+      const url = document.getElementById('url-input').value.trim();
+      
+      if (!url) {
+        return;
+      }
+
+      const result = checkUrl(url);
+      const resultDiv = document.getElementById('result');
+      
+      const icon = result.allowed
+        ? '<svg class="icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>'
+        : '<svg class="icon"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+      
+      resultDiv.className = `result ${result.allowed ? 'result-allowed' : 'result-blocked'}`;
+      resultDiv.innerHTML = `${icon}<span>${result.message}</span>`;
+    }
+
+    function toggleTheme() {
+      state.darkMode = !state.darkMode;
+      document.body.classList.toggle('dark-mode', state.darkMode);
+      document.getElementById('theme-icon-light').classList.toggle('hidden', state.darkMode);
+      document.getElementById('theme-icon-dark').classList.toggle('hidden', !state.darkMode);
+      localStorage.setItem('darkMode', state.darkMode);
+    }
+
+    document.getElementById('teacher-btn').addEventListener('click', () => {
+      showScreen('teacher-screen');
+      updateTeacherUI();
+    });
+
+    document.getElementById('student-btn').addEventListener('click', () => {
+      showScreen('student-screen');
+      document.getElementById('join-form').classList.remove('hidden');
+      document.getElementById('simulator').classList.add('hidden');
+    });
+
+    document.getElementById('teacher-back').addEventListener('click', () => {
+      showScreen('start-screen');
+    });
+
+    document.getElementById('student-back').addEventListener('click', () => {
+      showScreen('start-screen');
+      state.currentStudent = null;
+    });
+
+    document.getElementById('toggle-btn').addEventListener('click', toggleRestriction);
+
+    document.getElementById('add-site').addEventListener('click', addSite);
+
+    document.getElementById('new-site').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        addSite();
+      }
+    });
+
+    document.getElementById('join-btn').addEventListener('click', joinSession);
+
+    document.getElementById('invite-code-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        joinSession();
+      }
+    });
+
+    document.getElementById('visit-btn').addEventListener('click', visitSite);
+
+    document.getElementById('url-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        visitSite();
+      }
+    });
+
+    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (savedDarkMode) {
+      state.darkMode = true;
+      document.body.classList.add('dark-mode');
+      document.getElementById('theme-icon-light').classList.add('hidden');
+      document.getElementById('theme-icon-dark').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
